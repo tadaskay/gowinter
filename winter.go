@@ -5,6 +5,7 @@ import (
 	"net"
 	"os"
 	"strconv"
+	"winter-is-coming/game"
 )
 
 type Client struct {
@@ -45,4 +46,10 @@ func main() {
 	go receive(client)
 	message := <-client.data
 	fmt.Println(string(message))
+
+	session := game.NewSession(10, 30, "john")
+	for i := 0; i < 10; i++ {
+		session.Board.MoveZombie()
+		session.Board.ZombiePosition()
+	}
 }
