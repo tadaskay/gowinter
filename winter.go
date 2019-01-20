@@ -48,8 +48,5 @@ func main() {
 	fmt.Println(string(message))
 
 	session := game.NewSession(10, 30, "john")
-	for i := 0; i < 10; i++ {
-		session.Board.MoveZombie()
-		session.Board.ZombiePosition()
-	}
+	<-session.End
 }

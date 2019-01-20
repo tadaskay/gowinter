@@ -50,7 +50,11 @@ func (board *Board) ZombiePosition() {
 }
 
 func (board *Board) MoveZombie() {
-	board.zombie.moveSouth(board.size)
+	moveTick := time.Tick(2 * time.Second)
+	for range moveTick {
+		board.zombie.moveSouth(board.size)
+		board.ZombiePosition()
+	}
 }
 
 type Player string
@@ -58,6 +62,11 @@ type Player string
 type Session struct {
 	Board  Board
 	player Player
+	End    chan bool
+}
+
+func (session *Session) Start() {
+	go session.Board.MoveZombie()
 }
 
 func NewSession(sizeX, sizeY int, playerName string) Session {
@@ -65,9 +74,11 @@ func NewSession(sizeX, sizeY int, playerName string) Session {
 	board := Board{size: Bounds{sizeX, sizeY}}
 	zombie := Zombie{name: "night-king"}
 	board.spawn(zombie)
-
-	return Session{
+	session := Session{
 		board,
 		Player(playerName),
+		make(chan bool),
 	}
+	session.Start()
+	return session
 }
