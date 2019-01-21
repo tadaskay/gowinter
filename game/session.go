@@ -21,10 +21,10 @@ type Session struct {
 
 func NewSession(sizeX, sizeY int, playerName string) Session {
 	session := Session{
-		board.Bounds{sizeX, sizeY},
-		zombie.Zombie{Name: "night-king"},
-		Player(playerName),
-		make(chan bool),
+		board:  board.Bounds{sizeX, sizeY},
+		zombie: zombie.Zombie{Name: "night-king"},
+		player: Player(playerName),
+		End:    make(chan bool),
 	}
 	return session
 }
