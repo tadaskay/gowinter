@@ -48,5 +48,6 @@ func main() {
 	fmt.Println(string(message))
 
 	session := game.NewSession(10, 30, "john")
+	session.Start()
 	<-session.End
 }
