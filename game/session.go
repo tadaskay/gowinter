@@ -54,6 +54,8 @@ func (session *Session) processInput() {
 		switch clientEvent := evt.(type) {
 		case event.StartEvent:
 			session.start(clientEvent.Name)
+		case event.ShootEvent:
+			session.shotsFired(clientEvent.X, clientEvent.Y)
 		}
 	default:
 	}
@@ -72,8 +74,18 @@ func (session *Session) start(playerName string) {
 	session.zombie.Spawn(session.board)
 }
 
+func (session *Session) shotsFired(x, y int) {
+	session.zombie.HandleShot(board.Position{x, y})
+}
+
 func (session *Session) determineIfGameFinished() {
 	if session.zombie.IsSouthReached() {
+		fmt.Println("Game end: wall reached")
+		session.state = Finished
+		session.End <- true
+	}
+	if session.zombie.IsDead() {
+		fmt.Println("Game end: zombie shot dead")
 		session.state = Finished
 		session.End <- true
 	}

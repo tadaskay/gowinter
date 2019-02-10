@@ -10,7 +10,7 @@ import (
 type Zombie struct {
 	Name  string
 	Pos   board.Position
-	State State
+	state State
 
 	bounds     board.Bounds
 	moveTicker *time.Ticker
@@ -21,12 +21,13 @@ type State int
 const (
 	Initial State = iota
 	Moving
+	Dead
 )
 
 func New(name string) *Zombie {
 	return &Zombie{
 		Name:  name,
-		State: Initial,
+		state: Initial,
 	}
 }
 
@@ -35,12 +36,17 @@ func (z *Zombie) Spawn(bounds board.Bounds) {
 	z.Pos = board.Position{X: rand.Intn(bounds.X)}
 	z.bounds = bounds
 	z.moveTicker = time.NewTicker(2 * time.Second)
-	z.State = Moving
+	z.state = Moving
+}
+
+func (z *Zombie) HandleShot(pos board.Position) {
+	if z.Pos == pos {
+		z.state = Dead
+	}
 }
 
 func (z *Zombie) Update() {
-	switch z.State {
-	case Moving:
+	if z.state == Moving {
 		z.move()
 	}
 }
@@ -66,7 +72,6 @@ func (z *Zombie) move() {
 	z.Pos.Y += 1
 
 	if z.IsSouthReached() {
-		fmt.Println("WALL REACHED", z.Pos)
 		z.moveTicker.Stop()
 		return
 	} else {
@@ -76,4 +81,8 @@ func (z *Zombie) move() {
 
 func (z *Zombie) IsSouthReached() bool {
 	return z.Pos.Y == z.bounds.Y
+}
+
+func (z *Zombie) IsDead() bool {
+	return z.state == Dead
 }
