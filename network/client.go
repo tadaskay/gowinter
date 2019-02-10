@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/tadaskay/gowinter/event"
 	"net"
+	"os"
+	"strconv"
 	"strings"
 )
 
@@ -12,13 +14,28 @@ type GameClient struct {
 	Events chan interface{}
 }
 
-func NewGameClient(conn net.Conn) *GameClient {
+func NewGameClient(port int) *GameClient {
+	conn := waitForClientConnection(port)
 	client := &GameClient{
 		socket: conn,
 		Events: make(chan interface{}),
 	}
 	go client.receive()
 	return client
+}
+
+func waitForClientConnection(port int) net.Conn {
+	listener, err := net.Listen("tcp", ":"+strconv.Itoa(port))
+	if err != nil {
+		_, _ = fmt.Fprint(os.Stderr, "Error listening for connections", err)
+		os.Exit(1)
+	}
+	conn, err := listener.Accept()
+	if err != nil {
+		_, _ = fmt.Fprint(os.Stderr, "Error connecting: ", err)
+		os.Exit(1)
+	}
+	return conn
 }
 
 func (client *GameClient) receive() {
