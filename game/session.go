@@ -37,5 +37,9 @@ func (session *Session) Start() {
 func (session *Session) gameLoop() {
 	for {
 		session.zombie.Update()
+		if session.zombie.IsSouthReached() {
+			session.End <- true
+			break
+		}
 	}
 }

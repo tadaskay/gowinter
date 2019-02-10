@@ -50,4 +50,5 @@ func main() {
 	session := game.NewSession(10, 30, "john")
 	session.Start()
 	<-session.End
+	fmt.Println("Game ended")
 }

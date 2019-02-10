@@ -44,7 +44,7 @@ func (z *Zombie) move() {
 	z.Pos.X = newX
 	z.Pos.Y += 1
 
-	if z.southReached() {
+	if z.IsSouthReached() {
 		fmt.Println("WALL REACHED", z.Pos)
 		z.moveTicker.Stop()
 		return
@@ -53,6 +53,6 @@ func (z *Zombie) move() {
 	}
 }
 
-func (z *Zombie) southReached() bool {
+func (z *Zombie) IsSouthReached() bool {
 	return z.Pos.Y == z.bounds.Y
 }
