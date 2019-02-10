@@ -30,14 +30,19 @@ func (client *GameClient) StartReceiving() {
 				_ = client.socket.Close()
 				break
 			}
-			if n > 0 {
-				message := strings.TrimRight(string(buf[:n]), "\r\n")
-				gameEvent, err := event.Unmarshal(message)
-				if err != nil {
-					fmt.Println("Invalid message from client:", err)
-				}
-				client.Events <- gameEvent
+
+			received := n > 0
+			if !received {
+				continue
 			}
+
+			message := strings.TrimRight(string(buf[:n]), "\r\n")
+			gameEvent, err := event.Unmarshal(message)
+			if err != nil {
+				fmt.Println("Invalid message from client:", err)
+				continue
+			}
+			client.Events <- gameEvent
 		}
 	}()
 }
