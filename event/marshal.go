@@ -1,6 +1,7 @@
 package event
 
 import (
+	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
@@ -8,6 +9,10 @@ import (
 
 type MarshalError struct {
 	input interface{}
+}
+
+func (err *MarshalError) Error() string {
+	return fmt.Sprintf("input: [%v]", err.input)
 }
 
 func Marshal(event interface{}) (string, *MarshalError) {

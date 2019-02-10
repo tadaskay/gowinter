@@ -10,5 +10,5 @@ var PORT = 52000
 func main() {
 	client := network.NewGameClient(PORT)
 	session := game.NewSession(10, 30, client)
-	<-session.End
+	<-session.Complete
 }

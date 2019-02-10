@@ -19,44 +19,71 @@ const (
 )
 
 type Session struct {
-	board  board.Bounds
-	zombie *zombie.Zombie
-	player Player
-	client *network.GameClient
-	state  State
-	End    chan bool
+	board        board.Bounds
+	zombie       *zombie.Zombie
+	player       Player
+	client       *network.GameClient
+	serverEvents chan interface{}
+	state        State
+	Complete     chan bool
 }
 
 func NewSession(sizeX, sizeY int, client *network.GameClient) Session {
+	serverEvents := make(chan interface{}, 5)
 	session := Session{
-		board:  board.Bounds{sizeX, sizeY},
-		zombie: zombie.New("night-king"),
-		client: client,
-		state:  Pregame,
-		End:    make(chan bool),
+		board:        board.Bounds{sizeX, sizeY},
+		zombie:       zombie.New("night-king", serverEvents),
+		client:       client,
+		serverEvents: serverEvents,
+		state:        Pregame,
+		Complete:     make(chan bool),
 	}
 	go session.gameLoop()
 	return session
 }
 
 func (session *Session) gameLoop() {
+	defer func() {
+		session.Complete <- true
+	}()
 	for {
-		session.processInput()
+		session.processEvents()
 		session.update()
+
+		if session.state == Finished {
+			if len(session.client.Sent) == 0 && len(session.serverEvents) == 0 {
+				return
+			}
+		}
 	}
 }
 
-func (session *Session) processInput() {
+func (session *Session) processEvents() {
+	session.handleClientEvents()
+	session.sendServerEvents()
+}
+
+func (session *Session) handleClientEvents() {
 	select {
-	case evt := <-session.client.Events:
+	case evt := <-session.client.Received:
 		msg, _ := event.Marshal(evt)
 		fmt.Println("Client event:", msg)
 		switch clientEvent := evt.(type) {
 		case event.StartEvent:
 			session.start(clientEvent.Name)
 		case event.ShootEvent:
-			session.shotsFired(clientEvent.X, clientEvent.Y)
+			session.shotsFired(string(session.player), clientEvent.X, clientEvent.Y)
 		}
+	default:
+	}
+}
+
+func (session *Session) sendServerEvents() {
+	select {
+	case evt := <-session.serverEvents:
+		msg, _ := event.Marshal(evt)
+		fmt.Println("Server event:", msg)
+		session.client.Sent <- evt
 	default:
 	}
 }
@@ -74,19 +101,17 @@ func (session *Session) start(playerName string) {
 	session.zombie.Spawn(session.board)
 }
 
-func (session *Session) shotsFired(x, y int) {
-	session.zombie.HandleShot(board.Position{x, y})
+func (session *Session) shotsFired(playerName string, x, y int) {
+	session.zombie.HandleShot(playerName, board.Position{x, y})
 }
 
 func (session *Session) determineIfGameFinished() {
 	if session.zombie.IsSouthReached() {
-		fmt.Println("Game end: wall reached")
+		session.serverEvents <- event.EndEvent{Victory: false}
 		session.state = Finished
-		session.End <- true
 	}
 	if session.zombie.IsDead() {
-		fmt.Println("Game end: zombie shot dead")
+		session.serverEvents <- event.EndEvent{Victory: true}
 		session.state = Finished
-		session.End <- true
 	}
 }

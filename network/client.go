@@ -3,6 +3,7 @@ package network
 import (
 	"fmt"
 	"github.com/tadaskay/gowinter/event"
+	"io"
 	"net"
 	"os"
 	"strconv"
@@ -10,16 +11,20 @@ import (
 )
 
 type GameClient struct {
-	socket net.Conn
-	Events chan interface{}
+	socket   net.Conn
+	Received chan interface{}
+	Sent     chan interface{}
+	fatal    chan error
 }
 
 func NewGameClient(port int) *GameClient {
 	conn := waitForClientConnection(port)
 	client := &GameClient{
-		socket: conn,
-		Events: make(chan interface{}),
+		socket:   conn,
+		Received: make(chan interface{}, 5),
+		Sent:     make(chan interface{}, 5),
 	}
+	go client.send()
 	go client.receive()
 	return client
 }
@@ -38,16 +43,36 @@ func waitForClientConnection(port int) net.Conn {
 	return conn
 }
 
+func (client *GameClient) send() {
+	defer client.socket.Close()
+	for {
+		select {
+		case evt, ok := <-client.Sent:
+			if !ok {
+				return
+			}
+			msg, err := event.Marshal(evt)
+			if err != nil {
+				fmt.Println("Error marshalling message to client:", msg)
+				continue
+			}
+			_, err2 := io.WriteString(client.socket, msg+"\r\n")
+			if err2 != nil {
+				fmt.Println("Fatal error occurred when writing to client", err2)
+				return
+			}
+		}
+	}
+}
+
 func (client *GameClient) receive() {
-	defer func() {
-		_ = client.socket.Close()
-	}()
+	defer client.socket.Close()
 	for {
 		buf := make([]byte, 4096)
 		n, err := client.socket.Read(buf)
 		if err != nil {
-			fmt.Println("Error reading from client:", err)
-			break
+			fmt.Println("Fatal error occurred when reading with client", err)
+			return
 		}
 
 		received := n > 0
@@ -61,6 +86,7 @@ func (client *GameClient) receive() {
 			fmt.Println("Invalid message from client:", err2)
 			continue
 		}
-		client.Events <- gameEvent
+
+		client.Received <- gameEvent
 	}
 }

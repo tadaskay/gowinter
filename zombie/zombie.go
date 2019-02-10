@@ -1,8 +1,8 @@
 package zombie
 
 import (
-	"fmt"
 	"github.com/tadaskay/gowinter/board"
+	"github.com/tadaskay/gowinter/event"
 	"math/rand"
 	"time"
 )
@@ -12,8 +12,9 @@ type Zombie struct {
 	pos   board.Position
 	state state
 
-	bounds     board.Bounds
-	moveTicker *time.Ticker
+	bounds       board.Bounds
+	moveTicker   *time.Ticker
+	serverEvents chan<- interface{}
 }
 
 type state int
@@ -24,10 +25,11 @@ const (
 	dead
 )
 
-func New(name string) *Zombie {
+func New(name string, serverEvents chan interface{}) *Zombie {
 	return &Zombie{
-		Name:  name,
-		state: initial,
+		Name:         name,
+		state:        initial,
+		serverEvents: serverEvents,
 	}
 }
 
@@ -39,9 +41,12 @@ func (z *Zombie) Spawn(bounds board.Bounds) {
 	z.state = moving
 }
 
-func (z *Zombie) HandleShot(pos board.Position) {
+func (z *Zombie) HandleShot(playerName string, pos board.Position) {
 	if z.pos == pos {
 		z.state = dead
+		z.serverEvents <- event.BoomEvent{Character: playerName, Target: z.Name}
+	} else {
+		z.serverEvents <- event.MissEvent{}
 	}
 }
 
@@ -75,7 +80,7 @@ func (z *Zombie) move() {
 		z.moveTicker.Stop()
 		return
 	} else {
-		fmt.Println("MOVE", z.pos)
+		z.serverEvents <- event.WalkEvent{z.pos.X, z.pos.Y}
 	}
 }
 
