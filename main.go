@@ -9,9 +9,18 @@ import (
 	"strconv"
 )
 
-var PORT int = 52000
+var PORT = 52000
 
 func main() {
+	conn := waitForClientConnection()
+	client := network.NewGameClient(conn)
+
+	session := game.NewSession(10, 30, client)
+	<-session.End
+	fmt.Println("Game ended")
+}
+
+func waitForClientConnection() net.Conn {
 	listener, err := net.Listen("tcp", ":"+strconv.Itoa(PORT))
 	if err != nil {
 		_, _ = fmt.Fprint(os.Stderr, "Error listening for connections", err)
@@ -22,10 +31,5 @@ func main() {
 		_, _ = fmt.Fprint(os.Stderr, "Error connecting: ", err)
 		os.Exit(1)
 	}
-	client := network.NewClient(conn)
-	client.StartReceiving()
-
-	session := game.NewSession(10, 30, client)
-	<-session.End
-	fmt.Println("Game ended")
+	return conn
 }

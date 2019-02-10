@@ -12,37 +12,36 @@ type GameClient struct {
 	Events chan interface{}
 }
 
-func NewClient(conn net.Conn) *GameClient {
+func NewGameClient(conn net.Conn) *GameClient {
 	client := &GameClient{
 		socket: conn,
 		Events: make(chan interface{}),
 	}
+	go client.receive()
 	return client
 }
 
-func (client *GameClient) StartReceiving() {
-	go func() {
-		for {
-			buf := make([]byte, 4096)
-			n, err := client.socket.Read(buf)
-			if err != nil {
-				fmt.Println("Error reading from client:", err)
-				_ = client.socket.Close()
-				break
-			}
-
-			received := n > 0
-			if !received {
-				continue
-			}
-
-			message := strings.TrimRight(string(buf[:n]), "\r\n")
-			gameEvent, err := event.Unmarshal(message)
-			if err != nil {
-				fmt.Println("Invalid message from client:", err)
-				continue
-			}
-			client.Events <- gameEvent
+func (client *GameClient) receive() {
+	for {
+		buf := make([]byte, 4096)
+		n, err := client.socket.Read(buf)
+		if err != nil {
+			fmt.Println("Error reading from client:", err)
+			_ = client.socket.Close()
+			break
 		}
-	}()
+
+		received := n > 0
+		if !received {
+			continue
+		}
+
+		message := strings.TrimRight(string(buf[:n]), "\r\n")
+		gameEvent, err := event.Unmarshal(message)
+		if err != nil {
+			fmt.Println("Invalid message from client:", err)
+			continue
+		}
+		client.Events <- gameEvent
+	}
 }
