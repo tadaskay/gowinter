@@ -39,9 +39,9 @@ func (client *GameClient) receive() {
 		}
 
 		message := strings.TrimRight(string(buf[:n]), "\r\n")
-		gameEvent, err := event.Unmarshal(message)
-		if err != nil {
-			fmt.Println("Invalid message from client:", err)
+		gameEvent, err2 := event.Unmarshal(message)
+		if err2 != nil {
+			fmt.Println("Invalid message from client:", err2)
 			continue
 		}
 		client.Events <- gameEvent
