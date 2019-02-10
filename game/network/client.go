@@ -22,12 +22,14 @@ func NewGameClient(conn net.Conn) *GameClient {
 }
 
 func (client *GameClient) receive() {
+	defer func() {
+		_ = client.socket.Close()
+	}()
 	for {
 		buf := make([]byte, 4096)
 		n, err := client.socket.Read(buf)
 		if err != nil {
 			fmt.Println("Error reading from client:", err)
-			_ = client.socket.Close()
 			break
 		}
 
