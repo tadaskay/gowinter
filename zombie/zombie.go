@@ -2,7 +2,7 @@ package zombie
 
 import (
 	"fmt"
-	"github.com/tadaskay/gowinter/game/board"
+	"github.com/tadaskay/gowinter/board"
 	"math/rand"
 	"time"
 )

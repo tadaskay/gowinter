@@ -2,7 +2,7 @@ package network
 
 import (
 	"fmt"
-	"github.com/tadaskay/gowinter/game/event"
+	"github.com/tadaskay/gowinter/event"
 	"net"
 	"strings"
 )

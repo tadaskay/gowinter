@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/tadaskay/gowinter/game"
-	"github.com/tadaskay/gowinter/game/network"
+	"github.com/tadaskay/gowinter/network"
 	"net"
 	"os"
 	"strconv"
