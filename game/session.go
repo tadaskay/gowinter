@@ -3,6 +3,7 @@ package game
 import (
 	"fmt"
 	"github.com/tadaskay/gowinter/game/board"
+	"github.com/tadaskay/gowinter/game/event"
 	"github.com/tadaskay/gowinter/game/network"
 	"github.com/tadaskay/gowinter/game/zombie"
 )
@@ -36,7 +37,7 @@ func NewSession(sizeX, sizeY int, client *network.GameClient) Session {
 		board:  board.Bounds{sizeX, sizeY},
 		zombie: zombie.New("night-king"),
 		client: client,
-		state:  Started,
+		state:  Pregame,
 		End:    make(chan bool),
 	}
 	go session.gameLoop()
@@ -52,23 +53,32 @@ func (session *Session) gameLoop() {
 
 func (session *Session) processInput() {
 	select {
-	case clientEvent := <-session.client.Events:
-		fmt.Println("Received: ", clientEvent)
+	case evt := <-session.client.Events:
+		fmt.Println("Client event:", evt)
+		switch clientEvent := evt.(type) {
+		case event.StartEvent:
+			session.start(clientEvent.Name)
+		}
 	default:
 	}
 }
 
 func (session *Session) update() {
 	if session.state == Started {
-		if session.zombie.State == zombie.Initial {
-			session.zombie.Spawn(session.board)
-		} else {
-			session.zombie.Update()
-		}
+		session.zombie.Update()
+		session.determineIfGameFinished()
+	}
+}
 
-		if session.zombie.IsSouthReached() {
-			session.state = Finished
-			session.End <- true
-		}
+func (session *Session) start(playerName string) {
+	session.player = Player(playerName)
+	session.state = Started
+	session.zombie.Spawn(session.board)
+}
+
+func (session *Session) determineIfGameFinished() {
+	if session.zombie.IsSouthReached() {
+		session.state = Finished
+		session.End <- true
 	}
 }
