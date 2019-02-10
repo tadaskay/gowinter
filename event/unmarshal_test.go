@@ -24,9 +24,8 @@ func TestUnmarshal(t *testing.T) {
 		{"SHOOT 2 B", nil, e("cannot read int argument [B], input: [SHOOT 2 B]")},
 		{"MISS", MissEvent{}, nil},
 		{"BOOM john night-king", BoomEvent{"john", "night-king"}, nil},
-
-		{"END true", EndEvent{true}, nil},
-		{"END 5", nil, e("cannot read bool argument [5], input: [END 5]")},
+		{"VICTORY Petras", VictoryEvent{"Petras"}, nil},
+		{"DEFEAT", DefeatEvent{}, nil},
 	}
 
 	for _, table := range tables {

@@ -7,21 +7,23 @@ import (
 type id string
 
 const (
-	START id = "START"
-	WALK  id = "WALK"
-	SHOOT id = "SHOOT"
-	MISS  id = "MISS"
-	BOOM  id = "BOOM"
-	END   id = "END"
+	START   id = "START"
+	WALK    id = "WALK"
+	SHOOT   id = "SHOOT"
+	MISS    id = "MISS"
+	BOOM    id = "BOOM"
+	VICTORY id = "VICTORY"
+	DEFEAT  id = "DEFEAT"
 )
 
 var idToType = map[id]reflect.Type{
-	START: reflect.TypeOf(StartEvent{}),
-	WALK:  reflect.TypeOf(WalkEvent{}),
-	SHOOT: reflect.TypeOf(ShootEvent{}),
-	MISS:  reflect.TypeOf(MissEvent{}),
-	BOOM:  reflect.TypeOf(BoomEvent{}),
-	END:   reflect.TypeOf(EndEvent{}),
+	START:   reflect.TypeOf(StartEvent{}),
+	WALK:    reflect.TypeOf(WalkEvent{}),
+	SHOOT:   reflect.TypeOf(ShootEvent{}),
+	MISS:    reflect.TypeOf(MissEvent{}),
+	BOOM:    reflect.TypeOf(BoomEvent{}),
+	VICTORY: reflect.TypeOf(VictoryEvent{}),
+	DEFEAT:  reflect.TypeOf(DefeatEvent{}),
 }
 
 var typeToIdCache = make(map[reflect.Type]id)
@@ -62,6 +64,9 @@ type BoomEvent struct {
 	Target    string
 }
 
-type EndEvent struct {
-	Victory bool
+type VictoryEvent struct {
+	Name string
+}
+
+type DefeatEvent struct {
 }

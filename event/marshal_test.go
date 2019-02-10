@@ -14,7 +14,8 @@ func TestMarshal(t *testing.T) {
 		{ShootEvent{2, 2}, "SHOOT 2 2"},
 		{MissEvent{}, "MISS"},
 		{BoomEvent{"john", "night-king"}, "BOOM john night-king"},
-		{EndEvent{true}, "END true"},
+		{VictoryEvent{"Petras"}, "VICTORY Petras"},
+		{DefeatEvent{}, "DEFEAT"},
 	}
 
 	for _, table := range tables {

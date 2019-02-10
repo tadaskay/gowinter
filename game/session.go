@@ -107,11 +107,11 @@ func (session *Session) shotsFired(playerName string, x, y int) {
 
 func (session *Session) determineIfGameFinished() {
 	if session.zombie.IsSouthReached() {
-		session.serverEvents <- event.EndEvent{Victory: false}
+		session.serverEvents <- event.DefeatEvent{}
 		session.state = Finished
 	}
 	if session.zombie.IsDead() {
-		session.serverEvents <- event.EndEvent{Victory: true}
+		session.serverEvents <- event.VictoryEvent{Name: string(session.player)}
 		session.state = Finished
 	}
 }
