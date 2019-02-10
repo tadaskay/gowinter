@@ -54,7 +54,8 @@ func (session *Session) gameLoop() {
 func (session *Session) processInput() {
 	select {
 	case evt := <-session.client.Events:
-		fmt.Println("Client event:", evt)
+		msg, _ := event.Marshal(evt)
+		fmt.Println("Client event:", msg)
 		switch clientEvent := evt.(type) {
 		case event.StartEvent:
 			session.start(clientEvent.Name)

@@ -1,6 +1,8 @@
 package event
 
-import "reflect"
+import (
+	"reflect"
+)
 
 type id string
 
@@ -13,13 +15,31 @@ const (
 	END   id = "END"
 )
 
-var Types = map[id]reflect.Type{
+var idToType = map[id]reflect.Type{
 	START: reflect.TypeOf(StartEvent{}),
 	WALK:  reflect.TypeOf(WalkEvent{}),
 	SHOOT: reflect.TypeOf(ShootEvent{}),
 	MISS:  reflect.TypeOf(MissEvent{}),
 	BOOM:  reflect.TypeOf(BoomEvent{}),
 	END:   reflect.TypeOf(EndEvent{}),
+}
+
+var typeToIdCache = make(map[reflect.Type]id)
+
+func typeToId(t reflect.Type) (result id, found bool) {
+	if id, found := typeToIdCache[t]; found {
+		return id, true
+	}
+
+	if len(typeToIdCache) == 0 {
+		for k, v := range idToType {
+			typeToIdCache[v] = k
+		}
+		var id, found = typeToIdCache[t]
+		return id, found
+	}
+
+	return "", false
 }
 
 type StartEvent struct {

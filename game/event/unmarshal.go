@@ -35,7 +35,7 @@ func messageParts(msg string) (eventType reflect.Type, args []string, err error)
 	split := strings.Split(msg, " ")
 
 	eventId := id(split[0])
-	eventType, found := Types[eventId]
+	eventType, found := idToType[eventId]
 	if !found {
 		err = fmt.Errorf("unrecognized event id [%v]", eventId)
 		return nil, nil, err
@@ -45,14 +45,14 @@ func messageParts(msg string) (eventType reflect.Type, args []string, err error)
 	return eventType, args, err
 }
 
-func unmarshalEventArgs(s *reflect.Value, args []string) error {
-	if n := s.NumField(); len(args) < n {
+func unmarshalEventArgs(refValue *reflect.Value, args []string) error {
+	if n := refValue.NumField(); len(args) < n {
 		return fmt.Errorf("%v argument(s) required", n)
 	}
 
-	for i := 0; i < s.NumField(); i++ {
+	for i := 0; i < refValue.NumField(); i++ {
 		arg := args[i]
-		field := s.Field(i)
+		field := refValue.Field(i)
 		switch field.Kind() {
 		case reflect.Int:
 			val, err := strconv.Atoi(arg)
