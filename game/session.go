@@ -8,11 +8,6 @@ import (
 	"github.com/tadaskay/gowinter/game/zombie"
 )
 
-type Board struct {
-	size   board.Bounds
-	zombie zombie.Zombie
-}
-
 type Player string
 
 type State int
