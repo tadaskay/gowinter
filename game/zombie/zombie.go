@@ -2,9 +2,9 @@ package zombie
 
 import (
 	"fmt"
+	"github.com/tadaskay/gowinter/game/board"
 	"math/rand"
 	"time"
-	"winter-is-coming/game/board"
 )
 
 type Zombie struct {

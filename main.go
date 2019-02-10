@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
+	"github.com/tadaskay/gowinter/game"
+	"github.com/tadaskay/gowinter/game/network"
 	"net"
 	"os"
 	"strconv"
-	"winter-is-coming/game"
-	"winter-is-coming/game/network"
 )
 
 var PORT int = 52000

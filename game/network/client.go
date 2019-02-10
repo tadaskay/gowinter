@@ -2,9 +2,9 @@ package network
 
 import (
 	"fmt"
+	"github.com/tadaskay/gowinter/game/event"
 	"net"
 	"strings"
-	"winter-is-coming/game/event"
 )
 
 type GameClient struct {

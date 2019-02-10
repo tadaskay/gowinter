@@ -2,9 +2,9 @@ package game
 
 import (
 	"fmt"
-	"winter-is-coming/game/board"
-	"winter-is-coming/game/network"
-	"winter-is-coming/game/zombie"
+	"github.com/tadaskay/gowinter/game/board"
+	"github.com/tadaskay/gowinter/game/network"
+	"github.com/tadaskay/gowinter/game/zombie"
 )
 
 type Board struct {

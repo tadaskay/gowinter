@@ -1,1 +1,1 @@
-module winter-is-coming
+module github.com/tadaskay/gowinter
