@@ -34,7 +34,7 @@ func Unmarshal(msg string) (interface{}, *UnmarshalError) {
 func messageParts(msg string) (eventType reflect.Type, args []string, err error) {
 	split := strings.Split(msg, " ")
 
-	eventId := id(split[0])
+	eventId := id(strings.ToUpper(split[0]))
 	eventType, found := idToType[eventId]
 	if !found {
 		err = fmt.Errorf("unrecognized event id [%v]", eventId)
