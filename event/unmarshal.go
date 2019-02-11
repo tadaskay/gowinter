@@ -12,20 +12,20 @@ type UnmarshalError struct {
 	err   error
 }
 
-func (err *UnmarshalError) Error() string {
+func (err UnmarshalError) Error() string {
 	return fmt.Sprintf("%v, input: [%v]", err.err.Error(), err.input)
 }
 
-func Unmarshal(msg string) (interface{}, *UnmarshalError) {
+func Unmarshal(msg string) (event interface{}, err error) {
 	refType, args, err := messageParts(msg)
 	if err != nil {
-		return nil, &UnmarshalError{err: err, input: msg}
+		return nil, UnmarshalError{err: err, input: msg}
 	}
 
 	eventValue := reflect.New(refType).Elem()
 	err = unmarshalEventArgs(&eventValue, args)
 	if err != nil {
-		return nil, &UnmarshalError{err: err, input: msg}
+		return nil, UnmarshalError{err: err, input: msg}
 	}
 
 	return eventValue.Interface(), nil

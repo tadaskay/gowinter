@@ -1,10 +1,12 @@
 package event
 
 import (
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestMarshal(t *testing.T) {
+	assert := assert.New(t)
 	tables := []struct {
 		event interface{}
 		msg   string
@@ -19,10 +21,7 @@ func TestMarshal(t *testing.T) {
 	}
 
 	for _, table := range tables {
-		msg, _ := Marshal(table.event)
-
-		if table.msg != msg {
-			t.Errorf("Expected message: '%v', but got: '%v'", table.msg, msg)
-		}
+		msg, err := Marshal(table.event)
+		assert.Equal(table.msg, msg, err)
 	}
 }

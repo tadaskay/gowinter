@@ -11,15 +11,15 @@ type MarshalError struct {
 	input interface{}
 }
 
-func (err *MarshalError) Error() string {
+func (err MarshalError) Error() string {
 	return fmt.Sprintf("input: [%v]", err.input)
 }
 
-func Marshal(event interface{}) (string, *MarshalError) {
+func Marshal(event interface{}) (msg string, err error) {
 	refType := reflect.TypeOf(event)
 	var eventId, found = typeToId(refType)
 	if !found {
-		return "", &MarshalError{event}
+		return "", MarshalError{event}
 	}
 	refValue := reflect.ValueOf(event)
 
