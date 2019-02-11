@@ -18,6 +18,7 @@ type GameClient struct {
 }
 
 func NewGameClient(port int) *GameClient {
+	fmt.Println("Waiting for client connection on port:", port)
 	conn := waitForClientConnection(port)
 	client := &GameClient{
 		socket:   conn,
